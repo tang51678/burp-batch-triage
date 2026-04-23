@@ -9,9 +9,16 @@
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="MIT License">
 </p>
 
+<p align="center">
+  面向 OpenClaw 的低噪声 Web 目标批量研判 Skill<br>
+  A low-noise, evidence-driven web target triage skill for OpenClaw
+</p>
+
 中文 | [English](#english)
 
-面向 OpenClaw 工作流的低噪声 Web 目标批量研判 Skill。它从用户提供的一个或多个 HTTP/HTTPS URL 出发，围绕真实响应做递进式落地、提取同源页面与资源线索、保留 HTML/JS/CSS 等证据产物，并在最多三轮收敛后输出可复核的 Markdown 结论。
+`burp-batch-triage` 是一个围绕“真实 URL → 真实响应 → 同源递进 → 三轮收敛 → Markdown 结论”构建的 OpenClaw Skill。
+
+它不以字典扫描或路径猜测为起点，而是优先从用户提供的 HTTP/HTTPS URL 出发，落地 HTML / JS / CSS / JSON 等证据产物，提取页面、接口、表单、跳转与资源线索，并在最多三轮的最小化验证后，把结果收敛为可复核的 `summary.md`，仅在问题真正闭环时生成 `report.md`。
 
 ## ✨ 特性 | Features
 
@@ -36,6 +43,44 @@
 - Burp-aware fetching: prefers Burp bridge first and falls back to direct HTTP requests automatically
 - Supports both batch targets and inbox-style automation for continuous low-noise triage
 - Generates `report.md` only when a finding is stable and reproducible
+
+## 📋 能力边界 | Scope and Boundaries
+
+### 中文
+
+本项目更适合做的是：
+
+- 从单个或多个 URL 快速建立目标初始画像
+- 落地可复核的 HTML / JS / CSS / JSON 证据产物
+- 递进发现同源页面、接口线索、参数名、表单与跳转关系
+- 用低噪声方式推进到下一步人工验证或专门 Skill 深挖
+- 产出结构化 `summary.md` / `report.md`
+
+本项目默认不做的是：
+
+- 一上来就跑大规模路径字典或泛扫
+- 在证据不足时直接给出高风险结论
+- 把纯前端痕迹包装成已确认漏洞
+- 把空响应、占位接口、无差异枚举当成问题
+- 在没有授权和闭环证据的情况下失控扩展高风险动作
+
+### English
+
+This project is best suited for:
+
+- building an initial target picture from one or more URLs
+- landing reviewable HTML / JS / CSS / JSON artifacts
+- progressively discovering same-origin pages, request hints, parameters, forms, and redirects
+- advancing with low noise toward deeper manual validation or specialized skills
+- producing structured `summary.md` / `report.md` outputs
+
+This project intentionally avoids:
+
+- large-scale path dictionaries or broad scans as a starting move
+- high-risk conclusions without enough evidence
+- turning frontend-only traces into confirmed vulnerabilities
+- treating empty responses, placeholders, or no-diff enumeration as findings
+- escalating into uncontrolled risky actions without authorization and evidence closure
 
 ## 🎯 适用场景 | Use Cases
 
@@ -589,6 +634,42 @@ python scripts/triage_runner.py --recon-root recon --limit 2
 python scripts/watch_url_file.py --input-file ~/桌面/url.txt --workspace <openclaw-workspace> --state-file recon/.url_watch_state.json
 ```
 
+## 📝 输出原则 | Reporting Discipline
+
+### 中文
+
+所有结论都应按以下三级表达：
+
+- **已确认**：有真实响应闭环，可复核
+- **待验证**：有迹象，但当前样本不足以上报
+- **不能成立**：本轮最小化验证未形成闭环，应主动排除或降级
+
+只有当问题具备可复核证据、复现路径和稳定结论时，才应生成 `report.md`。
+
+### English
+
+All conclusions should be expressed in one of these three levels:
+
+- **Confirmed**: backed by real response evidence and reproducible
+- **Pending validation**: interesting signal exists, but not strong enough to report yet
+- **Cannot conclude**: the current minimal verification did not close the loop
+
+`report.md` should only be generated when a finding includes reproducible evidence, a stable path, and a reviewable conclusion.
+
+## ⚠️ 合法使用声明 | Legal and Responsible Use
+
+### 中文
+
+本项目仅供安全研究与合法授权测试使用，使用者需遵守相关法律法规。
+
+请勿将本项目用于未授权的扫描、探测、攻击、越权访问或任何可能影响目标系统可用性、完整性、保密性的行为。使用者应自行确认测试范围、授权边界与合规要求，并对自身使用行为承担全部责任。
+
+### English
+
+This project is intended მხოლოდ for security research and legally authorized testing. Users must comply with applicable laws and regulations.
+
+Do not use this project for unauthorized scanning, probing, attacks, privilege abuse, or any activity that may impact the availability, integrity, or confidentiality of target systems. Users are solely responsible for confirming scope, authorization boundaries, and compliance requirements before use.
+
 ## 📝 GitHub 发布建议 | GitHub Positioning
 
 ### 中文
@@ -636,3 +717,4 @@ If you are reading the English section first, the short version is:
 - collect artifacts before making claims
 - keep conclusions conservative
 - generate formal reports only for reproducible findings
+- use it only within authorized and lawful boundaries
